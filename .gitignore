@@ -1,0 +1,24 @@
+# R related
+*.Rproj
+.Rproj.user/
+.Rhistory
+.RData
+# Latex, markup related
+###################
+*.pdf
+*.aux
+*.log
+#*.rmd
+*.tex
+*.toc
+*.eps
+ 
+# Folders #
+############
+toLatex/
+figure/
+
+# zipped files #
+############
+*.gz
+.Rproj.user

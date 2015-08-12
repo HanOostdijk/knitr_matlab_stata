@@ -1,0 +1,206 @@
+\documentclass[11pt,monochrome]{article}
+\usepackage[T1]{fontenc}
+%\usepackage{geometry}
+\usepackage[a4paper,margin=1in,landscape]{geometry}
+%\geometry{verbose,tmargin=1.5cm,bmargin=1.5cm,lmargin=1.5cm,rmargin=1.5cm}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\usepackage{url}
+\usepackage[unicode=true,
+    pdfauthor={Han Oostdijk Quantitative Consultancy (han@hanoostdijk.nl)},
+    pdfsubject={Use of Knitr with environments other than R},
+    pdfkeywords={Latex, Knitr, MATLAB, Stata},
+    pdftitle={Example of knitr with included MATLAB and Stata output},
+    pdfproducer={},
+    pdfcreator={},
+    bookmarks=false,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+    breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=true,hidelinks]
+    {hyperref}    
+\usepackage{subfig} 
+\usepackage{graphicx}
+\usepackage{epstopdf}
+
+\begin{document}
+%\renewcommand\contentsname{Inhoud:}
+%\renewcommand\listfigurename{Figuren:}
+%\renewcommand\listtablename{Tabellen:}
+\title{Example of \textbf{knitr} with included MATLAB and Stata output}
+\setlength{\parindent}{0pt}
+\author{Han Oostdijk}
+\maketitle 
+\tableofcontents
+%\listoffigures
+<<setup, eval=TRUE, echo=FALSE, cache=FALSE>>=
+opts_chunk$set(fig.path='figure/plot-', fig.align='center', fig.show='hold', cache=FALSE, eval = TRUE, waittime=20 )
+knit_hooks$set(ss = function(before, options, envir) {
+    if (before) {
+        paste("\\section{",options$ss,"}",sep="") 
+        }
+    })
+options(formatR.arrow=TRUE,width=85)
+extra_dir = paste(
+                 c( "D:\\tools\\Python_2_7_5",
+                    "C:/Program Files (x86)/Stata13")           
+              ,collapse=";")
+Sys.setenv(PATH = paste(Sys.getenv("PATH"),extra_dir,sep=";"))
+
+source("knitr_engine_functions.r")
+knit_engines$set(matlab = knitr_engine_functions)
+knit_engines$set(stata  = knitr_engine_functions)
+@
+<<inline1, echo=FALSE>>=
+# is executed but not visible in the document; result will be used later
+read_chunk("D:/data/R/knitr_matlab_stata/example1.R")
+approx_e = 2.71
+approx_pi = 3.14
+@
+\section{introduction}
+This document shows how \textbf{knitr} can be used in combination with \LaTeX \  to produce dynamic documents.
+\textbf{knitr} started and is mostly used (at least I think so) in the \textsf{R} environment.
+However also for some other environments engines have been created to handle these. See \url{http://yihui.name/knitr/demo/engines/} for a list. This document shows how also results from the MATLAB and Stata environments can be used in \textbf{knitr}. The \textsf{R} code to do this is new but builds on and is similar to the code for the other  engines.  Because each engine is fully isolated from the others it is possible to combine results from the supported environments.
+\\This document shows how to do this. It is part of a set that contains
+\begin{itemize}
+  \item \textbf{example.pdf}: this document (the final output)
+  \item \textbf{example.rnw}: the main input for the document 
+  \item \textbf{example1.r} : the \textsf{R} code of which the 'chunks' will be included in the document
+  \item \textbf{knitr\_engine\_functions.r} : the engine code for MATLAB and Stata (besides the previously existing code for some other engines)
+\end{itemize}
+This document will also contain some general examples of the \textbf{knitr} functionality but for details we have to refer to the website of its author Yihui~Xie: \url{http://yihui.name/knitr/} 
+\\The idea here is that the main input document contains the layout and the code of a report. The \textbf{knitr} application takes this document and ensures that the code is executed and inserted in the layout. If the code e.g. reads a file and the file is updated then by just 'knitting' the document again an updated report is created (without any changes to the document). Keywords associated with this way of working are \textbf{Reproducible research} and \textbf{Literate Programming}. \\ Where \textbf{knitr} in combination with \LaTeX \  gives in my opinion the best control over the final output one nowadays also often sees the combination with \textbf{R~Markdown}: \url{http://rmarkdown.rstudio.com/} . The RStudio environment supports both combinations very well: 'knitting' is done with a click on a button.
+
+\section{the structure of the main input document}
+The main document (in this case \textbf{example.rnw}) contains text fragments and code chunks. The text fragments contain \LaTeX \ commands and the fixed phrases of the text. These will be copied to a tex file by \textbf{knitr}. A code chunk is analyzed by \textbf{knitr} and transfered to the appropriate engine after which the final results (dynamic phrases) are copied  to the tex file. A code chunk is a fragment that starts with <\hspace{2pt}<\hspace{2pt}.\hspace{2pt}.\hspace{2pt}.\hspace{2pt}>\hspace{2pt}>= on a new line (where the .\hspace{2pt}.\hspace{2pt}. part is variable) and ends with a {@} on a newline. 
+\\ In our case the main input document starts with the 'standard' \LaTeX \ commands followed by the first code chunk called 'setup'. It is immediately followed by another code chunk (called 'inline\_1') and after that the first text follows. After that we alternate the text fragments and the code chunks. We will give some detail about the first code chunks in the next sections.
+
+\section{setup chunk}
+In the first chunk we set up the environment:
+\begin{itemize}
+ \item we set the default values for the chunk options by using the opts\_chunk\$set function. 
+ \item we set a hook that creates a named section 'xxx' if we include ss='xxx' in the chunk definition. 
+ \item we set some general options.
+  \item we extend the system path so that the Python and Stata libraries can be found when they are needed. NB Python is not used in this document.
+\item we assign the newly developped code as the MATLAB and Stata engine. 
+\end{itemize}
+This set up could be used for more than one document.
+
+\section{inline\_1  chunk}
+In contrast to the setup chunk the inline\_1 chunk contains information that is specific for this document. It contains the read\_chunk call. It indicates a file that contains   \textsf{R} fragments that later in this document can be used as code chunks. 
+The names of the chunks can be chosen by the user: I have chosen for \textbf{inline\_}xx for chunks defined in this document and for \textbf{rc\_}yyy for chunks defined in the  read\_chunk file.
+In this chunk also some variables are defined, but because the chunk has as option echo=FALSE this is not visible at the place where the inline\_1  chunk is executed. However we can show the variables here:
+\\ approx\_e :  \Sexpr{approx_e}
+\\ approx\_pi :  \Sexpr{approx_pi}
+\section{the other chunks}
+By reading the main input file \textbf{example.rnw} it will become clear how the various code chunks work. If a chunk name is found in the file where the read\_chunk call pointed to, it will be used and otherwise the inline contents is used. Some short comments on the other code chunks:
+\begin{itemize}
+ \item rc\_init: uses option ss="initialization" and therefore generates the section "initialization". Because chunk option 'echo' is FALSE the code is not shown in contrast to the result (because chunk option 'results' has the default value 'TRUE') 
+ \item setup\_2: is used to avoid a very long chunk definition in the next chunk (the definition should always be contained in one line). Because chunk option 'include' is FALSE nothing is shown in the document  
+ \item inline\_2 executes some \textsf{R}-code that produces a figure in a section that is called "an R plot" because of the "ss" chunk option. Use a reference to \{fig:chunkname\} to refer to the whole figure and a reference to \{fig:chunknamex\} to subfigure x where x is a sequence number.
+  \item inline\_3 has a chunk option 'code'. This means that the expression "myfun(today)" is executed in the \textsf{R} environment. Because a section (with name "dynamic section") is already specified in \LaTeX \ the "ss" chunk option is not used here.
+\end{itemize}
+
+<<rc_init, echo=FALSE, tidy=TRUE,background="#ffffff",ss="initialization">>=
+@
+<<setup_2, include=FALSE, cache=FALSE>>=
+opts_chunk$set(fig.cap="plot created by R-code",
+               fig.subcap=c('the box plot','the histogram'),
+               fig.pos ='tbp' 
+                   )
+@
+
+<<inline_2, echo=TRUE, fig.width=4, fig.height=4, out.width='.45\\textwidth',ss="an R plot">>=
+set.seed(1121)
+x=rnorm(20)
+par(mar=c(4,4,.1,.1),cex.lab=.95,cex.axis=.9,mgp=c(2,.7,0),tcl=-.3,las=1)
+## two plots side by side (option fig.show='hold')
+boxplot(x)
+hist(x,main='')
+
+today = Sys.Date() 
+@
+The whole figure is Figure \ref{fig:inline_2} while the boxplot can be found in Figure \ref{fig:inline_21} and the histogram in Figure \ref{fig:inline_22}.  
+\\The variable 'today' will be used as argument in section \ref{sec:dynamic section}.
+
+\section{dynamic section}
+\label{sec:dynamic section}
+The remainder of this section is determined by the value of the variable 'today' that was set earlier.
+<<inline_3, code = "myfun(today)" , echo=TRUE, tidy=TRUE,background="#ffffff">>=
+@
+\section{contents of MATLAB session}
+\label{sec:mymatlab}
+Output of a MATLAB session can be included. By saving plots in the eps format these plots can be included in the document as shown in the example. It proved to be necessary to add some waiting time to give the MATLAB session the opportunity to close the logfile (where the output is copied from) and to write the plotfile. We set this waiting time with the chunck-option \texttt{waittime}. We specified in the \texttt{setup} section a default value of \Sexpr{opts_chunk$get('waittime')} seconds. The chunck option for this section is specified (but remember the actual specification has no linebreaks) as
+\begin{verbatim}
+<<mymatlab, engine="matlab", engine.path="C:/Program Files/MATLAB/R2015a/bin/matlab.exe", 
+engine.opts="-nosplash -nodesktop -minimize", echo=TRUE, eval=TRUE, tidy=TRUE, 
+cache=FALSE, background="#ffffff">>=
+\end{verbatim}
+MATLAB code that will be executed (and results preceded by \#\#):
+<<mymatlab, engine="matlab", engine.path="C:/Program Files/MATLAB/R2015a/bin/matlab.exe", engine.opts="-nosplash -nodesktop -minimize", echo=TRUE, eval=TRUE, tidy=TRUE, cache=FALSE, background="#ffffff">>=
+fprintf('start of MATLAB session (version %s)\n',version)
+rng(1954)  
+x=rand(1,6);
+y=x+10
+x=rand(1,6); 
+y=x+10 
+rng(1954) 
+x=rand(1,6);
+y=x+10 
+figure('Visible','off')
+plot(1:3,[2 1 2],'b-',1:3,[2 3 2],'ro')
+axis([0,4,0,3.5])
+legend({'line','dot'},'Location','northeast')
+xlabel('between zero and four') 
+ylabel('between 0.0 and 3.5') 
+print('matlabgraphfile','-depsc')
+fprintf('end of MATLAB session\n')
+@
+The plot created by the MATLAB session is Figure \ref{fig:matlabgraph}.
+It is inserted in the document with: 
+\begin{verbatim}
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=.45\textwidth]{matlabgraphfile}
+\caption{plot created by MATLAB code}\label{fig:matlabgraph}
+\end{figure}
+\end{verbatim}
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=.45\textwidth]{matlabgraphfile}
+\caption{plot created by MATLAB code}\label{fig:matlabgraph}
+\end{figure}
+
+\section{contents of Stata session}
+\label{sec:mystata}
+In the same way as for MATLAB the results of a Stata session can be included.
+Here we did not encounter time problems so no waiting time was necessary.
+As in the MATLAB case figures can be included by using the eps format.
+See Figure \ref{fig:statagraph} for an example.
+\\Stata code that will be executed (and results preceded by \#\#):
+
+<<mystata, engine="stata", engine.path="StataSE-64.exe", echo=TRUE, tidy=TRUE,background="#ffffff">>=
+about
+use "D:/data/R/knitr_matlab_stata/stata_testfile.dta",clear 
+replace sex = "X"  if _n > 5
+label define gender 0 "F" 1 "M" 2 "X"
+encode sex, generate(gender) label(gender)
+list , nolabel
+quiet graph box length, over(gender) title(knitr graph) name(graph1,replace)
+quiet graph export "D:\data\R\knitr_matlab_stata\statagraph1.eps", as(eps) preview(off) replace
+@
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=.45\textwidth]{statagraph1}
+\caption{plot created by Stata code}\label{fig:statagraph}
+\end{figure}
+
+\section{software versions used}
+\label{sec:Software-version-used}
+We used 
+\begin{itemize}
+ \item RStudio Version 0.99.441 - \copyright \ 2009-2015 RStudio, Inc.
+ \item pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9)
+\end{itemize}
+
+<<rc_versions, echo=TRUE, tidy=TRUE,background="#ffffff">>=
+@
+\end{document}
