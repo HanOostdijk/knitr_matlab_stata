@@ -2,6 +2,7 @@
 \usepackage[T1]{fontenc}
 %\usepackage{geometry}
 \usepackage[a4paper,margin=1in,landscape]{geometry}
+\usepackage{lmodern}
 %\geometry{verbose,tmargin=1.5cm,bmargin=1.5cm,lmargin=1.5cm,rmargin=1.5cm}
 \setcounter{secnumdepth}{2}
 \setcounter{tocdepth}{2}
