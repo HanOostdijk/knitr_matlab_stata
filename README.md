@@ -1,5 +1,6 @@
 # knitr_matlab_stata
-knitr engines for MATLAB and Stata and an example that uses them
+knitr engines for MATLAB and Stata and an example that uses them.  
+(NB Stata support is included in knitr from version 1.10 onwards)
 
 Building on existing knitr engines we now support MATLAB and Stata.  
 Contents of this repository:
