@@ -58,7 +58,7 @@ approx_pi = 3.14
 \section{introduction}
 This document shows how \textbf{knitr} can be used in combination with \LaTeX \  to produce dynamic documents.
 \textbf{knitr} started and is mostly used (at least I think so) in the \textsf{R} environment.
-However also for some other environments engines have been created to handle these. See \url{http://yihui.name/knitr/demo/engines/} for a list. This document shows how also results from the MATLAB and Stata environments can be used in \textbf{knitr}. The \textsf{R} code to do this is new but builds on and is similar to the code for the other  engines.  Because each engine is fully isolated from the others it is possible to combine results from the supported environments.
+However also for some other environments engines have been created to handle these. See \url{http://yihui.name/knitr/demo/engines/} for a list. This document shows how also results from the MATLAB and Stata environments can be used in \textbf{knitr}. The \textsf{R} code to do this is new (\textbf{knitr} 1.10 and later supports Stata directly) but builds on and is similar to the code for the other engines.  Because each engine is fully isolated from the others it is possible to combine results from the supported environments.
 \\This document shows how to do this. It is part of a set that contains
 \begin{itemize}
   \item \textbf{example.pdf}: this document (the final output)
@@ -130,12 +130,12 @@ The remainder of this section is determined by the value of the variable 'today'
 \label{sec:mymatlab}
 Output of a MATLAB session can be included. By saving plots in the eps format these plots can be included in the document as shown in the example. It proved to be necessary to add some waiting time to give the MATLAB session the opportunity to close the logfile (where the output is copied from) and to write the plotfile. We set this waiting time with the chunck-option \texttt{waittime}. We specified in the \texttt{setup} section a default value of \Sexpr{opts_chunk$get('waittime')} seconds. The chunck option for this section is specified (but remember the actual specification has no linebreaks) as
 \begin{verbatim}
-<<mymatlab, engine="matlab", engine.path="C:/Program Files/MATLAB/R2015a/bin/matlab.exe", 
+<<mymatlab, engine="matlab", engine.path="C:/Program Files/MATLAB/R2016a/bin/matlab.exe", 
 engine.opts="-nosplash -nodesktop -minimize", echo=TRUE, eval=TRUE, tidy=TRUE, 
 cache=FALSE, background="#ffffff">>=
 \end{verbatim}
 MATLAB code that will be executed (and results preceded by \#\#):
-<<mymatlab, engine="matlab", engine.path="C:/Program Files/MATLAB/R2015a/bin/matlab.exe", engine.opts="-nosplash -nodesktop -minimize", echo=TRUE, eval=TRUE, tidy=TRUE, cache=FALSE, background="#ffffff">>=
+<<mymatlab, engine="matlab", engine.path="C:/Program Files/MATLAB/R2016a/bin/matlab.exe", engine.opts="-nosplash -nodesktop -minimize", echo=TRUE, eval=TRUE, tidy=TRUE, cache=FALSE, background="#ffffff">>=
 fprintf('start of MATLAB session (version %s)\n',version)
 rng(1954)  
 x=rand(1,6);
@@ -198,8 +198,8 @@ quiet graph export "D:\data\R\knitr_matlab_stata\statagraph1.eps", as(eps) previ
 \label{sec:Software-version-used}
 We used 
 \begin{itemize}
- \item RStudio Version 0.99.441 - \copyright \ 2009-2015 RStudio, Inc.
- \item pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9)
+ \item RStudio Version  0.99.892 - \copyright \ 2009-2016 RStudio, Inc.
+ \item pdfTeX, Version 3.14159265-2.6-1.40.16 (MiKTeX 2.9 64-bit)
 \end{itemize}
 
 <<rc_versions, echo=TRUE, tidy=TRUE,background="#ffffff">>=
